@@ -8,18 +8,24 @@ SAMPLE_RATE = 44100
 CHANNELS = 2
 CHUNK = 4096  # Harus sama dengan server
 
-# Setup UDP socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.settimeout(5)
-sock.sendto(b'hello', (SERVER_IP, SERVER_PORT))  # Daftarkan diri ke server
+# Setup TCP
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((SERVER_IP, SERVER_PORT))
 
 speaker = sc.default_speaker()
 
 print(f"Listening audio stream dari {SERVER_IP}:{SERVER_PORT} ... Tekan Ctrl+C untuk berhenti.")
 try:
     while True:
-        data, _ = sock.recvfrom(CHUNK * CHANNELS * 2)  # 2 bytes per sample (int16)
-        if len(data) < CHUNK * CHANNELS * 2:
+        # Terima data sebanyak CHUNK * CHANNELS * 2 bytes (int16)
+        data = b''
+        expected_bytes = CHUNK * CHANNELS * 2
+        while len(data) < expected_bytes:
+            packet = sock.recv(expected_bytes - len(data))
+            if not packet:
+                break
+            data += packet
+        if len(data) < expected_bytes:
             continue  # Skip jika data kurang
         pcm = np.frombuffer(data, dtype=np.int16).astype(np.float32) / 32767.0
         pcm = pcm.reshape(-1, CHANNELS)
