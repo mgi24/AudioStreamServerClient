@@ -57,34 +57,26 @@ WiFiUDP udp;
 uint8_t udpBuffer[BUFFER_SIZE];
 
 void setup() {
-  Serial.begin(115200);
-  setup_wifi();
-  setup_i2s();
+    Serial.begin(115200);
+    setup_wifi();
+    setup_i2s();
 
-  // Kirim pesan "HELLO" ke server via UDP
-  udp.beginPacket(host, port);
-  udp.write((const uint8_t*)"HELLO", 5);
-  udp.endPacket();
-  Serial.println("Sent HELLO message via UDP to server.");
-
-  // Listen on UDP port
-  if (udp.begin(port)) {
-    Serial.print("Listening for UDP audio on port ");
-    Serial.println(port);
-  } else {
-    Serial.println("Failed to start UDP listener!");
-  }
+    // Listen on UDP port
+    if (udp.begin(port)) {
+        Serial.print("Listening for UDP audio on port ");
+        Serial.println(port);
+    } else {
+        Serial.println("Failed to start UDP listener!");
+    }
 }
 
 void loop() {
-  int packetSize = udp.parsePacket();
-  if (packetSize > 0) {
-    int len = udp.read(udpBuffer, BUFFER_SIZE);
-    Serial.print("Received UDP packet of size: ");
-    Serial.println(len);
-    if (len > 0) {
-      size_t bytes_written = 0;
-      i2s_write(I2S_NUM, udpBuffer, len, &bytes_written, portMAX_DELAY);
+    int packetSize = udp.parsePacket();
+    if (packetSize > 0) {
+        int len = udp.read(udpBuffer, BUFFER_SIZE);
+        if (len > 0) {
+            size_t bytes_written = 0;
+            i2s_write(I2S_NUM, udpBuffer, len, &bytes_written, portMAX_DELAY);
+        }
     }
-  }
 }

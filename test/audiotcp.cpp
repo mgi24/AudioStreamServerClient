@@ -7,7 +7,7 @@ const char* password = "apalah123";
 
 // Server TCP
 const char* host = "192.168.0.100"; // Ganti dengan IP server Anda
-const uint16_t port = 5005;
+const uint16_t port = 12345;
 
 // Audio config
 #define SAMPLE_RATE   44100
@@ -53,38 +53,32 @@ void setup_i2s() {
   i2s_set_pin(I2S_NUM, &pin_config);
 }
 
-WiFiUDP udp;
-uint8_t udpBuffer[BUFFER_SIZE];
-
 void setup() {
   Serial.begin(115200);
   setup_wifi();
   setup_i2s();
 
-  // Kirim pesan "HELLO" ke server via UDP
-  udp.beginPacket(host, port);
-  udp.write((const uint8_t*)"HELLO", 5);
-  udp.endPacket();
-  Serial.println("Sent HELLO message via UDP to server.");
-
-  // Listen on UDP port
-  if (udp.begin(port)) {
-    Serial.print("Listening for UDP audio on port ");
-    Serial.println(port);
-  } else {
-    Serial.println("Failed to start UDP listener!");
+  Serial.print("Connecting to server...");
+  while (!client.connect(host, port)) {
+    Serial.print(".");
+    delay(1000);
   }
+  Serial.println("\nConnected to server!");
 }
 
 void loop() {
-  int packetSize = udp.parsePacket();
-  if (packetSize > 0) {
-    int len = udp.read(udpBuffer, BUFFER_SIZE);
-    Serial.print("Received UDP packet of size: ");
-    Serial.println(len);
-    if (len > 0) {
+  static uint8_t buffer[BUFFER_SIZE];
+  if (client.connected()) {
+    int bytesRead = client.read(buffer, BUFFER_SIZE);
+    if (bytesRead > 0) {
       size_t bytes_written = 0;
-      i2s_write(I2S_NUM, udpBuffer, len, &bytes_written, portMAX_DELAY);
+      i2s_write(I2S_NUM, buffer, bytesRead, &bytes_written, portMAX_DELAY);
     }
+  } else {
+    Serial.println("Disconnected from server, reconnecting...");
+    while (!client.connect(host, port)) {
+      delay(1000);
+    }
+    Serial.println("Reconnected!");
   }
 }
