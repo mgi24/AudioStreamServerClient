@@ -5,7 +5,7 @@ import numpy as np
 # Konfigurasi
 SERVER_IP = '0.0.0.0'      # Listen di semua interface
 SERVER_PORT = 5005         # Port UDP tujuan
-CLIENT_IP = '192.168.0.101'  # Ganti dengan IP client ESP32 atau PC
+CLIENT_IP = '192.168.0.104'  # Ganti dengan IP client ESP32 atau PC
 CLIENT_PORT = 5005         # Port UDP client
 SAMPLE_RATE = 44100
 CHUNK = 1024               # Jumlah frame per buffer
