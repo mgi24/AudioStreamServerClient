@@ -28,8 +28,8 @@ i2s_pin_config_t pin_config = {
     .data_in_num = I2S_PIN_NO_CHANGE // Not used
 };
 // WiFi credentials
-const char* ssid     = "TP-Link";
-const char* password = "apalah123";
+const char* ssid     = "MMVPROJECT";
+const char* password = "MMVPROJECT";
 
 WiFiUDP udp;
 const unsigned int localUdpPort = 5005;
