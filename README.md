@@ -1,2 +1,2 @@
 # AudioStreamServerClient
-Stream audio from single server to multiclient like a online radio
+Stream audio from server, then receive to esp32 wifi speakers!
